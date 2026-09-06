@@ -1,4 +1,7 @@
 /bin/
 MadnessKombat.jar
 configs.txt
+.classpath
+.project
+.settings/
 
