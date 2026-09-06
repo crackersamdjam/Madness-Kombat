@@ -107,6 +107,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 	private void update()
 	{
 		gsm.update();
+		Multiplayer.NetworkSession.tick(gsm);
 	}
 	
 	private void draw()

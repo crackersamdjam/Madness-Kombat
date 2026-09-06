@@ -228,11 +228,16 @@ public class Player extends GameObject {
 		lives--;
 		if(hasWeapon)
 			dropWeapon();
-		dyingSound.play();
+		playDeathSound();
 		if(lives <= 0)
 			removeThis();
 		else
 			respawn();
+	}
+	
+	public void playDeathSound()
+	{
+		if(dyingSound != null) dyingSound.play();
 	}
 	
 	public void dropWeapon()

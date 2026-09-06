@@ -29,26 +29,35 @@ public class Explosion extends GameObject{
 	public static void drawExplosions(Graphics2D g) { for(Explosion e : ExplosionList) e.draw(g); }
 	
 	public Explosion(double x, double y, int damage, int blastRadius) {
+		this(x, y, damage, blastRadius, false);
+	}
+	
+	public Explosion(double x, double y, int damage, int blastRadius, boolean visualOnly) {
 		this.setX(x);
 		this.setY(y);
 		this.blastRadius = blastRadius;
 		this.damage = damage;
 		graphicRadius = 5;
 		this.setHitbox(new Rectangle((int)this.getX() - blastRadius / 2, (int)this.getY() - blastRadius / 2, blastRadius, blastRadius));
-		try {
-			for(Player p : Player.PlayerList)
-			{
-				if(this.collidesWith(p))
+		if(!visualOnly)
+		{
+			try {
+				for(Player p : Player.PlayerList)
 				{
-					p.takeDamage(calculateDamage(p.getX() + p.getWidth() / 2, p.getY() + p.getHeight() / 2));
-				}
-			} 
-		} catch(Exception e) {}
+					if(this.collidesWith(p))
+					{
+						p.takeDamage(calculateDamage(p.getX() + p.getWidth() / 2, p.getY() + p.getHeight() / 2));
+					}
+				} 
+			} catch(Exception e) {}
+		}
 		if(explosionSound == null)
 			explosionSound = new SoundEffect(getClass().getResource("/explosion.wav"));
 		explosionSound.play();
 		ExplosionList.add(this);
 	}
+	
+	public int getBlastRadius() { return blastRadius; }
 	
 	public void draw(Graphics2D g)
 	{

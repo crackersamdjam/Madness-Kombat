@@ -3,6 +3,7 @@ package GameObject;
 import java.util.ArrayList;
 import java.util.Random;
 import GameObject.Item.*;
+import GameObject.Player.Team;
 import GameObject.Weapon.*;
 import TileMap.TileMap;
 
@@ -273,5 +274,55 @@ public class Library {
 		if(c.equals(M14.class)) return 13;
 		if(c.equals(TNT.class)) return 14;
 		return id;
+	}
+	
+	public int getItemId(Item i)
+	{
+		Class<? extends Item> c = i.getClass();
+		if(c.equals(HealthRelic.class)) return 0;
+		if(c.equals(SpeedBoots.class)) return 1;
+		if(c.equals(AmmoBox.class)) return 2;
+		if(c.equals(ClothArmor.class)) return 3;
+		if(c.equals(InfiniteAmmoBox.class)) return 4;
+		return -1;
+	}
+	
+	public Item createItem(int index, TileMap t)
+	{
+		switch(index)
+		{
+		case 0: return new HealthRelic(t);
+		case 1: return new SpeedBoots(t);
+		case 2: return new AmmoBox(t);
+		case 3: return new ClothArmor(t);
+		case 4: return new InfiniteAmmoBox(t);
+		default: return null;
+		}
+	}
+	
+	public int getBulletId(Bullet b)
+	{
+		Class<? extends Bullet> c = b.getClass();
+		if(c.equals(PistolBullet.class)) return 0;
+		if(c.equals(RifleBullet.class)) return 1;
+		if(c.equals(ShotgunPellet.class)) return 2;
+		if(c.equals(SniperBullet.class)) return 3;
+		if(c.equals(M14Bullet.class)) return 4;
+		if(c.equals(RPG_Bullet.class)) return 5;
+		return 0;
+	}
+	
+	public Bullet createBullet(int index, TileMap t, Team team)
+	{
+		switch(index)
+		{
+		case 0: return new PistolBullet(t, team);
+		case 1: return new RifleBullet(t, team);
+		case 2: return new ShotgunPellet(t, team);
+		case 3: return new SniperBullet(t, team);
+		case 4: return new M14Bullet(t, team);
+		case 5: return new RPG_Bullet(t, team);
+		default: return new PistolBullet(t, team);
+		}
 	}
 }

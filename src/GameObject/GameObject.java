@@ -3,6 +3,7 @@ package GameObject;
 import java.awt.image.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import TileMap.TileMap;
 
@@ -23,6 +24,8 @@ public abstract class GameObject {
 	private boolean air;
 	private boolean hitLeft, hitRight;
 	private int direction;
+	private static final AtomicInteger NEXT_NET_ID = new AtomicInteger(1);
+	private int netId = NEXT_NET_ID.getAndIncrement();
 	
 	public final double gravity = -0.5;
 	
@@ -67,6 +70,9 @@ public abstract class GameObject {
 	public void setTileMap(TileMap m) { tileMap = m; }
 	public int getDirection() { return direction; }
 	public void setDirection(int dir) { direction = dir; }
+	public int getNetId() { return netId; }
+	public void setNetId(int netId) { this.netId = netId; }
+	public static void resetNetIds() { NEXT_NET_ID.set(1); }
 	
 	public void spawnRandom(ArrayList<Point> spawnPoints)
 	{

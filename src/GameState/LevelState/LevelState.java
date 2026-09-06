@@ -82,6 +82,7 @@ public class LevelState extends GameState{
 		soundtrack.stop();
 		gsm.gp.getInputMap().clear();
 		gsm.gp.getActionMap().clear();
+		Multiplayer.NetworkSession.shutdown();
 		this.gsm.setState(GameStateManager.MENUSTATE);
 	}
 	public void setLibrary(GameObject.Library lib) { this.library = lib; }

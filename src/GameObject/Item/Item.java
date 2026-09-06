@@ -74,6 +74,10 @@ public abstract class Item extends GameObject{
 		
 	}
 	
+	public void removeThis() {
+		ItemList.remove(this);
+	}
+	
 	public void init() {
 		
 

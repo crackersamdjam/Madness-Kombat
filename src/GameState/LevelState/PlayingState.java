@@ -25,6 +25,7 @@ import GameState.GameState;
 import GameState.GameStateManager;
 import Main.GamePanel;
 import Main.KeyHandler;
+import Multiplayer.NetworkSession;
 import TileMap.TileMap;
 
 public class PlayingState extends GameState{
@@ -102,7 +103,8 @@ public class PlayingState extends GameState{
 			int slot = id - 1;
 			Player p = new Player(playerImages[slot], tileMap, keysets[slot], id, scores[slot], teamSet[slot]);
 			p.init();
-			p.initKeyActions(keyHandler);
+			if(!NetworkSession.isHost() || p.getID() == NetworkSession.getLocalPlayerId())
+				p.initKeyActions(keyHandler);
 			p.spawn(pt);
 			p.setName(gsm.getPlayerNames()[slot]);
 			tmpPlayerSpawnPoints.remove(index);
@@ -146,6 +148,8 @@ public class PlayingState extends GameState{
 		if(!initialized) return;
 		if(!countdown)
 		{
+			if(NetworkSession.isHost())
+				NetworkSession.applyRemoteInputs();
 			Player.updatePlayers();
 			Weapon.updateWeapons();
 			Bullet.updateBullets();

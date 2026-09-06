@@ -22,6 +22,8 @@ public class GameStateManager {
 	public static final int LEVELSTATE = 1;
 	public static final int EDITORSTATE = 2;
 	public static final int OPTIONSTATE = 3;
+	public static final int HOST_LOBBY = 4;
+	public static final int CLIENT_PLAY = 5;
 	
 	public Background bg;
 	public GamePanel gp;
@@ -46,6 +48,8 @@ public class GameStateManager {
 		gameStates.add(levelState);
 		gameStates.add(new EditorState(this));
 		gameStates.add(new OptionsState(this));
+		gameStates.add(new Multiplayer.HostLobbyState(this));
+		gameStates.add(new Multiplayer.ClientPlayState(this));
 	}
 	
 	public void setState(int state)
@@ -106,5 +110,6 @@ public class GameStateManager {
 	
 	public void setPlayerNames(String[] names) { playerNames = names; }
 	public String[] getPlayerNames() { return playerNames; }
+	public int getCurrentState() { return currentState; }
 	
 }

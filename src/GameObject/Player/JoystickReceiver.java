@@ -2,8 +2,6 @@ package GameObject.Player;
 
 import java.net.*;
 
-import Multiplayer.Packet.Packet03Keypress;
-
 public class JoystickReceiver implements Runnable{
 	
 	private Player player;
@@ -45,8 +43,15 @@ public class JoystickReceiver implements Runnable{
 				System.out.println("packet received");
 			} catch (Exception e) {  }
 			
-			Packet03Keypress keyPacket = new Packet03Keypress(new String(packet.getData()).trim());
-			processKeypress(keyPacket.getKeyData());
+			String[] tokens = new String(packet.getData()).trim().split("\\s+");
+			if(tokens.length < 2) continue;
+			try
+			{
+				int k = Integer.parseInt(tokens[tokens.length - 2]);
+				int j = Integer.parseInt(tokens[tokens.length - 1]);
+				processKeypress(new int[] {k, j});
+			}
+			catch(NumberFormatException e) {}
 		}
 		
 	}

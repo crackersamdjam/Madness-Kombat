@@ -7,7 +7,7 @@ import Main.GamePanel;
 
 public class MenuState extends GameState{
 	
-	private String[] options = {"Start","Editor","Options","Quit"};
+	private String[] options = {"Start","Host Game","Join Game","Editor","Options","Quit"};
 	private int currentChoice = 0;
 	
 	private Color titleColor;
@@ -59,12 +59,18 @@ public class MenuState extends GameState{
 			gsm.setState(GameStateManager.LEVELSTATE);
 			break;
 		case 1:
-			gsm.setState(GameStateManager.EDITORSTATE);
+			gsm.setState(GameStateManager.HOST_LOBBY);
 			break;
 		case 2:
-			gsm.setState(GameStateManager.OPTIONSTATE);
+			gsm.setState(GameStateManager.CLIENT_PLAY);
 			break;
 		case 3:
+			gsm.setState(GameStateManager.EDITORSTATE);
+			break;
+		case 4:
+			gsm.setState(GameStateManager.OPTIONSTATE);
+			break;
+		case 5:
 			System.exit(0);
 			break;
 		}

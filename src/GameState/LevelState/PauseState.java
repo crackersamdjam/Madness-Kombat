@@ -51,8 +51,8 @@ public class PauseState extends GameState{
 		}
 		else if(k == KeyEvent.VK_ENTER)
 		{
-			ls.exitLevelState();
 			while(!Weapon.WeaponList.isEmpty()) Weapon.WeaponList.get(0).removeThis();
+			ls.exitLevelState();
 		}
 		else if(k == KeyEvent.VK_R)
 		{
