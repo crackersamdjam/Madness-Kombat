@@ -1,4 +1,4 @@
-7.map
+6.map
 LAST_MAN_STANDING
 Stabley
 1
