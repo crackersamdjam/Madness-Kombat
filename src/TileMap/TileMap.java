@@ -141,6 +141,7 @@ public class TileMap {
 	
 	public void writeMap(String s) throws IOException
 	{
+		if(map == null) return;
 		writer = new BufferedWriter(new FileWriter(new File(s)));
 		writer.write(Integer.toString(numCols));
 		writer.newLine();
@@ -175,15 +176,15 @@ public class TileMap {
 	public ArrayList<Point> getFirearmSpawnPoints() { return firearmSpawnPoints; }
 	public ArrayList<Point> getLaunchBlockCoords() { return launchBlockCoords; }
 	public int getType(int row, int col) { 
-		try
-		{
-			return map[row][col]; 
-		}catch(Exception e)
-		{
+		if(map == null || row < 0 || col < 0 || row >= numRows || col >= numCols)
 			return 0;
-		}
+		return map[row][col];
 	}
-	public void setType(int row, int col, int type) { map[row][col] = type; }
+	public void setType(int row, int col, int type) {
+		if(map == null || row < 0 || col < 0 || row >= numRows || col >= numCols)
+			return;
+		map[row][col] = type;
+	}
 	public int getNumRows() { return numRows; }
 	public int getNumCols() { return numCols; }
 	
@@ -196,6 +197,8 @@ public class TileMap {
 	
 	public void setTile(int row, int col, int type)
 	{
+		if(map == null || row < 0 || col < 0 || row >= numRows || col >= numCols)
+			return;
 		map[row][col] = type;
 	}
 	

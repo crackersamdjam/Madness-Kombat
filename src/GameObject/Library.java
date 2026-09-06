@@ -46,12 +46,14 @@ public class Library {
 	
 	public void newRandomItem(TileMap t)
 	{
+		if(itemPreset.isEmpty()) return;
 		int index = r.nextInt(itemPreset.size());
 		newItem(itemPreset.get(index), t);
 	}
 	
 	public Item getNewRandomItem(TileMap t)
 	{
+		if(itemPreset.isEmpty()) return null;
 		int index = r.nextInt(itemPreset.size());
 		return getNewItem(itemPreset.get(index), t);
 	}
@@ -109,6 +111,7 @@ public class Library {
 	
 	public void newRandomFirearm(TileMap t)
 	{
+		if(weaponPreset.isEmpty()) return;
 		int index = r.nextInt(weaponPreset.size());
 		newFirearm(weaponPreset.get(index), t);
 	}
@@ -170,6 +173,7 @@ public class Library {
 	
 	public Weapon getRandomFirearm(TileMap t)
 	{
+		if(weaponPreset.isEmpty()) return null;
 		int index = r.nextInt(weaponPreset.size());
 		return getNewFirearm(weaponPreset.get(index), t);
 	}
@@ -253,19 +257,21 @@ public class Library {
 	{
 		Class<? extends Weapon> c = w.getClass();
 		int id = -1;
-		if(c.equals(Pistol.class)) return 1;
-		if(c.equals(Uzi.class)) return 2;
-		if(c.equals(Kalashnikova.class)) return 3;
-		if(c.equals(Shotgun.class)) return 4;
-		if(c.equals(Chainsaw.class)) return 5;
-		if(c.equals(Grenade.class)) return 6;
-		if(c.equals(Sniper.class)) return 7;
-		if(c.equals(RPG.class)) return 8;
-		if(c.equals(PunchGun.class)) return 9;
-		if(c.equals(Molotov.class)) return 10;
-		if(c.equals(M4A1.class)) return 11;
-		if(c.equals(Shield.class)) return 12;
+		if(c.equals(Pistol.class)) return 0;
+		if(c.equals(Uzi.class)) return 1;
+		if(c.equals(Kalashnikova.class)) return 2;
+		if(c.equals(Shotgun.class)) return 3;
+		if(c.equals(Chainsaw.class)) return 4;
+		if(c.equals(Grenade.class)) return 5;
+		if(c.equals(Sniper.class)) return 6;
+		if(c.equals(RPG.class)) return 7;
+		if(c.equals(PunchGun.class)) return 8;
+		if(c.equals(Molotov.class)) return 9;
+		if(c.equals(M4A1.class)) return 10;
+		if(c.equals(Shield.class)) return 11;
+		if(c.equals(Bizon.class)) return 12;
 		if(c.equals(M14.class)) return 13;
+		if(c.equals(TNT.class)) return 14;
 		return id;
 	}
 }

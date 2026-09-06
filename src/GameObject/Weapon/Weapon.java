@@ -48,11 +48,13 @@ public abstract class Weapon extends GameObject {
 	
 	public static void updateWeapons()
 	{
-		if(!WeaponList.isEmpty())
-			for(int i = 0; i < WeaponList.size(); i++)
-			{
-				WeaponList.get(i).update();
-			}
+		for(int i = 0; i < WeaponList.size(); )
+		{
+			Weapon w = WeaponList.get(i);
+			w.update();
+			if(i < WeaponList.size() && WeaponList.get(i) == w)
+				i++;
+		}
 		Explosion.updateExplosions();
 	}
 	
@@ -106,7 +108,8 @@ public abstract class Weapon extends GameObject {
 	
 	public void applyRecoil()
 	{
-		player.addExternalForce(20, -this.getDirection() * this.getRecoil(), 0);
+		if(player != null)
+			player.addExternalForce(20, -this.getDirection() * this.getRecoil(), 0);
 	}
 	
 	public void respawn() {
@@ -231,17 +234,24 @@ public abstract class Weapon extends GameObject {
 	public void setEquipped(boolean b) { 
 		equipped = b; 
 		if(!equipped)
+		{
 			if(ammoCount == 0)
 			{
 				despawnTime = System.currentTimeMillis() + 15000;
 				despawnable = true;
 			}
+		}
 		else
 			despawnable = false;
 	}
 	public double getBulletSpeed() { return bulletSpeed; }
 	public void setBulletSpeed(double speed) { bulletSpeed = speed; }
-	public void removeThis() { sound.stop(); WeaponList.remove(WeaponList.indexOf(this)); }
+	public void removeThis() {
+		if(sound != null) sound.stop();
+		int index = WeaponList.indexOf(this);
+		if(index != -1)
+			WeaponList.remove(index);
+	}
 	public static void setSpawnPoints(ArrayList<Point> spawnPoints) { SpawnPoints = spawnPoints; }
 	public static ArrayList<Point> getSpawnPoints() { return SpawnPoints; }
 	public double getFireRate() { return fireRate; }

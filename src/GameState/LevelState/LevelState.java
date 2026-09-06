@@ -29,6 +29,7 @@ public class LevelState extends GameState{
 	
 	public LevelState(GameStateManager gsm) {
 		this.gsm = gsm;
+		library = new Library();
 		states = new GameState[3];
 		states[PLAYING] = new PlayingState(gsm, this);
 		states[TRANSITION] = new TransitionState(this);
@@ -75,8 +76,14 @@ public class LevelState extends GameState{
 	
 	public void initState(int stateIndex) { states[stateIndex].init(); }
 	public void setState(int stateIndex) { this.stateIndex = stateIndex; }
+	public int getStateIndex() { return stateIndex; }
 	public GameState getState(int index) { return states[index]; }
-	public void exitLevelState() { soundtrack.stop(); this.gsm.setState(GameStateManager.MENUSTATE); }
+	public void exitLevelState() {
+		soundtrack.stop();
+		gsm.gp.getInputMap().clear();
+		gsm.gp.getActionMap().clear();
+		this.gsm.setState(GameStateManager.MENUSTATE);
+	}
 	public void setLibrary(GameObject.Library lib) { this.library = lib; }
 	public void setTeamSet(Team[] teamSet) { this.teamSet = teamSet; }
 	public void setPlayerImages(BufferedImage[] playerImages) { this.playerImages = playerImages; }

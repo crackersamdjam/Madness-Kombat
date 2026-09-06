@@ -44,16 +44,23 @@ public class Shield extends Weapon {
 	private void hitTestBullet()
 	{
 		ArrayList<Bullet> bullets = Bullet.BulletList;
-		for(int i = 0; i < bullets.size(); i++)
+		for(int i = 0; i < bullets.size(); )
 		{
 			Bullet b = bullets.get(i);
 			if(b.collidesWith(this))
 			{
-				this.getPlayer().addExternalForce(50, b.getKnockback(), 0);
+				Player p = this.getPlayer();
+				if(p != null)
+					p.addExternalForce(50, b.getKnockback(), 0);
 				this.takeDamage(b.getDamage());
 				b.removeThis();
-				i--;
 				bumpSound.play();
+				if(!this.isEquipped() || this.getPlayer() == null)
+					return;
+			}
+			else
+			{
+				i++;
 			}
 		}
 	}
@@ -63,7 +70,9 @@ public class Shield extends Weapon {
 		health -= damage;
 		if(health <= 0)
 		{
-			this.getPlayer().dropWeapon();
+			Player p = this.getPlayer();
+			if(p != null)
+				p.dropWeapon();
 			this.removeThis();
 		}
 	}

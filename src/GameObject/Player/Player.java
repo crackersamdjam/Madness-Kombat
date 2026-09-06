@@ -141,6 +141,7 @@ public class Player extends GameObject {
 	
 	private void respawn()
 	{
+		if(SpawnPoints == null || SpawnPoints.isEmpty()) return;
 		Random r = new Random();
 		int index = r.nextInt(SpawnPoints.size());
 		Point p = SpawnPoints.get(index);
@@ -225,12 +226,13 @@ public class Player extends GameObject {
 	public void die()
 	{
 		lives--;
-		if(lives <= 0)
-			removeThis();
 		if(hasWeapon)
 			dropWeapon();
-		respawn();
 		dyingSound.play();
+		if(lives <= 0)
+			removeThis();
+		else
+			respawn();
 	}
 	
 	public void dropWeapon()
@@ -256,7 +258,11 @@ public class Player extends GameObject {
 	public void setID(int id) { this.id = id; if(name.equals("Player")) { name += " " + String.valueOf(id); } }
 	public double getHitpoints() { return hitpoints; }
 	public void setHitpoints(double hp) { hitpoints = hp; }
-	public void removeThis() { PlayerList.remove(PlayerList.indexOf(this)); }
+	public void removeThis() {
+		int index = PlayerList.indexOf(this);
+		if(index != -1)
+			PlayerList.remove(index);
+	}
 	public static void setSpawnPoints(ArrayList<Point> spawnPoints) { SpawnPoints = spawnPoints; }
 	public static ArrayList<Point> getSpawnPoints() { return SpawnPoints; }
 	public boolean isDownPressed() { return downPressed; }
@@ -436,8 +442,13 @@ public class Player extends GameObject {
 	
 	private void updateForces()
 	{
-		for(int i = 0; i < forceList.size(); i++)
-			forceList.get(i).update();
+		for(int i = 0; i < forceList.size(); )
+		{
+			Force f = forceList.get(i);
+			f.update();
+			if(i < forceList.size() && forceList.get(i) == f)
+				i++;
+		}
 	}
 	
 	private class Force

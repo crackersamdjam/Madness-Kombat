@@ -28,7 +28,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 	
 	private GameStateManager gsm;
 	private JFrame motherFrame;
-	private static String levelName = "1";
+	private static String levelName = "1.map";
 	private static File level;
 	private static File configs;
 	
@@ -58,25 +58,26 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 		gsm = new GameStateManager(this);
 	}
 	
-	@SuppressWarnings("static-access")
 	public void run() {
 		init();
 		long start, elapsed, wait, last, second = 1000000000;
 		int ticks = 0;
 		last = System.nanoTime();
 		try {
-			//wait for keyListener to load
-			thread.sleep(20);
+			Thread.sleep(20);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		while(running)
 		{
 			start = System.nanoTime();
 			
-			update();
-			draw();
+			try {
+				update();
+				draw();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 			//drawToScreen();
 			ticks++;
 			elapsed = System.nanoTime() - start;
@@ -89,14 +90,16 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 			}
 			
 			wait = targetTime - elapsed / 1000000;
-			if(wait < 0) wait = 5;
-			try
+			if(wait > 0)
 			{
-				Thread.sleep(wait);
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
+				try
+				{
+					Thread.sleep(wait);
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -115,6 +118,10 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 			return;
 		}
 		Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+		Insets insets = motherFrame.getInsets();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, motherFrame.getWidth(), motherFrame.getHeight());
+		g.translate(insets.left, insets.top);
 		gsm.draw(g);
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("consolas", Font.PLAIN, 12));
@@ -146,6 +153,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 	public static void setLevelName(String s)
 	{
 		levelName = s;
+		level = new File(getLevelFilePath());
 	}
 	
 	public static String getRootFolderPath()
@@ -190,8 +198,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener
 		
 		JFrame j = new JFrame("Madness Kombat");
 		GamePanel g = new GamePanel(j);
-		j.setPreferredSize(dimension);
 		j.add(g);
+		j.setIgnoreRepaint(true);
+		g.setIgnoreRepaint(true);
 		j.pack();
 		j.setResizable(false);
 		j.setLocationRelativeTo(null);

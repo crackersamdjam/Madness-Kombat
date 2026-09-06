@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 
 import GameObject.Player.Player;
-import GameObject.Player.Team;
 import GameState.GameState;
 import Main.GamePanel;
 
@@ -66,13 +65,15 @@ public class TransitionState extends GameState{
 			else
 			{
 				drawResult(g, "No one wins...");
-				System.out.println("dsfdsfdsfsd");
 			}
 		}
 		else if(gm == GameMode.TEAM)
 		{
-			Team winningTeam = ps.getWinningPlayer().getTeam();
-			drawResult(g, winningTeam.name() + " team wins!");
+			Player winningPlayer = ps.getWinningPlayer();
+			if(winningPlayer != null)
+				drawResult(g, winningPlayer.getTeam().name() + " team wins!");
+			else
+				drawResult(g, "No one wins...");
 		}
 		
 		

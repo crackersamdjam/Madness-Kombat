@@ -14,13 +14,17 @@ public class Explosion extends GameObject{
 	private int blastRadius;
 	private int graphicRadius;
 	private int damage;
+	private static SoundEffect explosionSound;
 	
 	public static ArrayList<Explosion> ExplosionList = new ArrayList<Explosion>();
-	public static void updateExplosions() { 
-		try
+	public static void updateExplosions() {
+		for(int i = 0; i < ExplosionList.size(); )
 		{
-			for(Explosion e : ExplosionList) e.update();
-		} catch(Exception e) {}
+			Explosion e = ExplosionList.get(i);
+			e.update();
+			if(i < ExplosionList.size() && ExplosionList.get(i) == e)
+				i++;
+		}
 	}
 	public static void drawExplosions(Graphics2D g) { for(Explosion e : ExplosionList) e.draw(g); }
 	
@@ -40,8 +44,9 @@ public class Explosion extends GameObject{
 				}
 			} 
 		} catch(Exception e) {}
-		SoundEffect sound = new SoundEffect(getClass().getResource("/explosion.wav"));
-		sound.play();
+		if(explosionSound == null)
+			explosionSound = new SoundEffect(getClass().getResource("/explosion.wav"));
+		explosionSound.play();
 		ExplosionList.add(this);
 	}
 	

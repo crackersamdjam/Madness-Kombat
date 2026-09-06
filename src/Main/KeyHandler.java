@@ -24,5 +24,11 @@ public class KeyHandler {
 		gp.getInputMap().remove(ks);
 		gp.getActionMap().remove(actionKey);
 	}
+	
+	public void clearActions()
+	{
+		gp.getInputMap().clear();
+		gp.getActionMap().clear();
+	}
 
 }

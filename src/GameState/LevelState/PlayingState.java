@@ -74,32 +74,45 @@ public class PlayingState extends GameState{
 		keysets = gsm.getKeyset();
 		playerPreset = gsm.getPlayerPreset();
 		keyHandler = new KeyHandler(gp);
+		keyHandler.clearActions();
 		players.clear();
 		while(!weapons.isEmpty()) weapons.get(0).removeThis();
 		bullets.clear();
 		items.clear();
 		specialBlocks.clear();
 		Explosion.ExplosionList.clear();
-		Player.setSpawnPoints(tileMap.getPlayerSpawnPoints());
-		Weapon.setSpawnPoints(tileMap.getFirearmSpawnPoints());
-		ArrayList<Point> tmpPlayerSpawnPoints = Player.getSpawnPoints();
-		ArrayList<Point> tmpFirearmSpawnPoints = Weapon.getSpawnPoints();
+		ArrayList<Point> playerSpawns = new ArrayList<Point>(tileMap.getPlayerSpawnPoints());
+		ArrayList<Point> firearmSpawns = new ArrayList<Point>(tileMap.getFirearmSpawnPoints());
+		if(playerSpawns.isEmpty())
+			playerSpawns.add(new Point(2, 2));
+		if(firearmSpawns.isEmpty())
+			firearmSpawns.add(new Point(2, 4));
+		Player.setSpawnPoints(new ArrayList<Point>(playerSpawns));
+		Weapon.setSpawnPoints(new ArrayList<Point>(firearmSpawns));
+		ArrayList<Point> tmpPlayerSpawnPoints = new ArrayList<Point>(playerSpawns);
+		ArrayList<Point> tmpFirearmSpawnPoints = new ArrayList<Point>(firearmSpawns);
 		Random r = new Random();
 		for(int a = 0; a < playerPreset.size(); a++)
 		{
+			if(tmpPlayerSpawnPoints.isEmpty())
+				tmpPlayerSpawnPoints.addAll(playerSpawns);
 			int index = r.nextInt(tmpPlayerSpawnPoints.size());
 			Point pt = tmpPlayerSpawnPoints.get(index);
 			int id = playerPreset.get(a);
-			Player p = new Player(playerImages[a], tileMap, keysets[id - 1], id, scores[id - 1], teamSet[a]);
+			int slot = id - 1;
+			Player p = new Player(playerImages[slot], tileMap, keysets[slot], id, scores[slot], teamSet[slot]);
 			p.init();
 			p.initKeyActions(keyHandler);
 			p.spawn(pt);
-			p.setName(gsm.getPlayerNames()[id - 1]);
+			p.setName(gsm.getPlayerNames()[slot]);
 			tmpPlayerSpawnPoints.remove(index);
 		}
 		for(int i = 0; i < players.size(); i++)
 		{
 			Weapon f = library.getRandomFirearm(tileMap);
+			if(f == null) break;
+			if(tmpFirearmSpawnPoints.isEmpty())
+				tmpFirearmSpawnPoints.addAll(firearmSpawns);
 			int index = new Random().nextInt(tmpFirearmSpawnPoints.size());
 			f.spawn(tmpFirearmSpawnPoints.get(index));
 			tmpFirearmSpawnPoints.remove(index);
@@ -112,7 +125,7 @@ public class PlayingState extends GameState{
 				new Spike(coord);
 			}
 		ArrayList<Point> mysteryCoords = tileMap.getMysteryBlockCoords();
-		if(!mysteryCoords.isEmpty())
+		if(!mysteryCoords.isEmpty() && !library.getWeaponPreset().isEmpty())
 			for(int i = 0; i < mysteryCoords.size(); i++)
 			{
 				Point coord = mysteryCoords.get(i);
@@ -293,5 +306,8 @@ public class PlayingState extends GameState{
 	public Team[] getTeamSet() { return teamSet; }
 	public void setTeamSet(Team[] teamSet) { this.teamSet = teamSet; }
 	public void setPlayerImages(BufferedImage[] images) { this.playerImages = images; }
+	public boolean isCountdown() { return countdown; }
+	public long getCountSec() { return countSec; }
+	public boolean isInitialized() { return initialized; }
 	
 }

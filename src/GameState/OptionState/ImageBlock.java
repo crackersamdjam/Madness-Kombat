@@ -18,6 +18,7 @@ public class ImageBlock extends OptionBlock {
 	
 	public static void loadImages(String[] imageNames) throws IOException
 	{
+		PlayerImages.clear();
 		for(String name : imageNames)
 		{
 			BufferedImage image = ImageIO.read(ImageBlock.class.getResource(name));

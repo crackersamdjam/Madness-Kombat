@@ -57,8 +57,9 @@ public class OptionsState extends GameState{
 		playerImageIndices = new int[4];
 		try {
 			loadConfig();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			applyInMemoryDefaults();
 		}
 		
 	}
@@ -68,8 +69,9 @@ public class OptionsState extends GameState{
 		keysets = gsm.getKeyset();
 		try {
 			loadConfig();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			applyInMemoryDefaults();
 		}
 		initOptionBlocks();	
 	}
@@ -138,23 +140,174 @@ public class OptionsState extends GameState{
 	
 	private void loadConfig() throws IOException
 	{
-		BufferedReader reader = new BufferedReader(new FileReader(GamePanel.getConfigFilePath()));
-		levelName = reader.readLine();
-		GamePanel.setLevelName(levelName);
-		LevelState.setGameMode(GameMode.valueOf(reader.readLine()));
-		
-		for(int a = 0; a < 4; a++)
+		File configFile = new File(GamePanel.getConfigFilePath());
+		if(!configFile.exists())
+			writeDefaultConfig();
+		try(BufferedReader reader = new BufferedReader(new FileReader(configFile)))
 		{
-			int[] k = new int[5];
-			playerNames[a] = reader.readLine();
-			playerSet[a] = Integer.parseInt(reader.readLine());
-			teamSet[a] = Team.valueOf(reader.readLine());
-			playerImageIndices[a] = Integer.parseInt(reader.readLine());
-			for(int b = 0; b < k.length; b++)
+			levelName = reader.readLine();
+			GamePanel.setLevelName(levelName);
+			LevelState.setGameMode(GameMode.valueOf(reader.readLine()));
+			
+			for(int a = 0; a < 4; a++)
 			{
-				k[b] = Integer.parseInt(reader.readLine());
+				int[] k = new int[5];
+				playerNames[a] = reader.readLine();
+				playerSet[a] = Integer.parseInt(reader.readLine());
+				teamSet[a] = Team.valueOf(reader.readLine());
+				playerImageIndices[a] = Integer.parseInt(reader.readLine());
+				for(int b = 0; b < k.length; b++)
+				{
+					k[b] = Integer.parseInt(reader.readLine());
+				}
+				keysets[a].setAllKeys(k);
 			}
-			keysets[a].setAllKeys(k);
+			gsm.setPlayerNames(playerNames);
+			ArrayList<Integer> preset = new ArrayList<Integer>();
+			for(int a = 0; a < 4; a++)
+			{
+				if(playerSet[a] == 1)
+					preset.add(a + 1);
+			}
+			gsm.setPlayerPreset(preset);
+			level = new File(GamePanel.getLevelFilePath());
+			reader.readLine();
+			preset = new ArrayList<Integer>();
+			for(int a = 0; a < library.getWeaponCount(); a++)
+			{
+				if(Integer.parseInt(reader.readLine()) == 1)
+					preset.add(a);
+			}
+			library.setWeaponPreset(preset);
+			reader.readLine();
+			preset = new ArrayList<Integer>();
+			for(int a = 0; a < library.getItemCount(); a++)
+			{
+				if(Integer.parseInt(reader.readLine()) == 1)
+					preset.add(a);
+			}
+			library.setItemPreset(preset);
+			LevelState ls = (LevelState) this.gsm.getState(GameStateManager.LEVELSTATE);
+			ls.setLibrary(library);
+			ls.setTeamSet(teamSet);
+			reader.readLine();
+			int numImages = Integer.parseInt(reader.readLine());
+			imageNames = new String[numImages];
+			for(int i = 0; i < numImages; i++)
+			{
+				imageNames[i] = reader.readLine();
+			}
+			if(ImageBlock.PlayerImages.size() != numImages)
+				ImageBlock.loadImages(imageNames);
+			BufferedImage[] images = new BufferedImage[4];
+			for(int i = 0; i < playerImageIndices.length; i++)
+			{
+				if(playerImageIndices[i] < 0 || playerImageIndices[i] >= ImageBlock.PlayerImages.size())
+					playerImageIndices[i] = 0;
+				images[i] = ImageBlock.PlayerImages.get(playerImageIndices[i]);
+			}
+			ls.setPlayerImages(images);
+			reader.readLine();
+			if(reader.readLine().equals("-1")) SoundEffect.MUTE = true;
+			else SoundEffect.MUTE = false;
+			if(reader.readLine().equals("-1")) MusicLoop.MUTE = true;
+			else MusicLoop.MUTE = false;
+		}
+	}
+	
+	private void writeDefaultConfig() throws IOException
+	{
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(new File(GamePanel.getConfigFilePath()))))
+		{
+			writer.write("1.map");
+			writer.newLine();
+			writer.write(GameMode.LAST_MAN_STANDING.name());
+			writer.newLine();
+			String[] names = {"Player 1", "Player 2", "Player 3", "Player 4"};
+			int[] enabled = {1, 1, -1, -1};
+			String[] teams = {"BLUE", "RED", "RED", "BLUE"};
+			int[] images = {0, 1, 2, 0};
+			int[][] keys = {
+				{KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_SLASH},
+				{KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_C},
+				{KeyEvent.VK_T, KeyEvent.VK_G, KeyEvent.VK_F, KeyEvent.VK_H, KeyEvent.VK_N},
+				{KeyEvent.VK_I, KeyEvent.VK_K, KeyEvent.VK_J, KeyEvent.VK_L, KeyEvent.VK_SEMICOLON}
+			};
+			for(int a = 0; a < 4; a++)
+			{
+				writer.write(names[a]);
+				writer.newLine();
+				writer.write(Integer.toString(enabled[a]));
+				writer.newLine();
+				writer.write(teams[a]);
+				writer.newLine();
+				writer.write(Integer.toString(images[a]));
+				writer.newLine();
+				for(int b = 0; b < 5; b++)
+				{
+					writer.write(Integer.toString(keys[a][b]));
+					writer.newLine();
+				}
+			}
+			writer.write("");
+			writer.newLine();
+			for(int i = 0; i < library.getWeaponCount(); i++)
+			{
+				writer.write("1");
+				writer.newLine();
+			}
+			writer.write("");
+			writer.newLine();
+			for(int i = 0; i < library.getItemCount(); i++)
+			{
+				writer.write("1");
+				writer.newLine();
+			}
+			writer.write("");
+			writer.newLine();
+			writer.write("3");
+			writer.newLine();
+			writer.write("/playerAgent.png");
+			writer.newLine();
+			writer.write("/playerMailman.png");
+			writer.newLine();
+			writer.write("/playerSoldier.png");
+			writer.newLine();
+			writer.write("");
+			writer.newLine();
+			writer.write("1");
+			writer.newLine();
+			writer.write("1");
+		}
+	}
+	
+	private void applyInMemoryDefaults()
+	{
+		levelName = "1.map";
+		GamePanel.setLevelName(levelName);
+		LevelState.setGameMode(GameMode.LAST_MAN_STANDING);
+		playerNames[0] = "Player 1";
+		playerNames[1] = "Player 2";
+		playerNames[2] = "Player 3";
+		playerNames[3] = "Player 4";
+		playerSet[0] = 1;
+		playerSet[1] = 1;
+		playerSet[2] = -1;
+		playerSet[3] = -1;
+		teamSet[0] = Team.BLUE;
+		teamSet[1] = Team.RED;
+		teamSet[2] = Team.RED;
+		teamSet[3] = Team.BLUE;
+		playerImageIndices[0] = 0;
+		playerImageIndices[1] = 1;
+		playerImageIndices[2] = 2;
+		playerImageIndices[3] = 0;
+		imageNames = new String[] {"/playerAgent.png", "/playerMailman.png", "/playerSoldier.png"};
+		try {
+			if(ImageBlock.PlayerImages.isEmpty())
+				ImageBlock.loadImages(imageNames);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		gsm.setPlayerNames(playerNames);
 		ArrayList<Integer> preset = new ArrayList<Integer>();
@@ -165,46 +318,19 @@ public class OptionsState extends GameState{
 		}
 		gsm.setPlayerPreset(preset);
 		level = new File(GamePanel.getLevelFilePath());
-		reader.readLine();
-		preset = new ArrayList<Integer>();
-		for(int a = 0; a < library.getWeaponCount(); a++)
-		{
-			if(Integer.parseInt(reader.readLine()) == 1)
-				preset.add(a);
-		}
-		library.setWeaponPreset(preset);
-		reader.readLine();
-		preset = new ArrayList<Integer>();
-		for(int a = 0; a < library.getItemCount(); a++)
-		{
-			if(Integer.parseInt(reader.readLine()) == 1)
-				preset.add(a);
-		}
-		library.setItemPreset(preset);
+		library = new Library();
 		LevelState ls = (LevelState) this.gsm.getState(GameStateManager.LEVELSTATE);
 		ls.setLibrary(library);
 		ls.setTeamSet(teamSet);
-		reader.readLine();
-		int numImages = Integer.parseInt(reader.readLine());
-		imageNames = new String[numImages];
-		for(int i = 0; i < numImages; i++)
-		{
-			imageNames[i] = reader.readLine();
-		}
-		if(ImageBlock.PlayerImages.size() != numImages)
-			ImageBlock.loadImages(imageNames);
 		BufferedImage[] images = new BufferedImage[4];
 		for(int i = 0; i < playerImageIndices.length; i++)
 		{
-			images[i] = ImageBlock.PlayerImages.get(playerImageIndices[i]);
+			if(!ImageBlock.PlayerImages.isEmpty())
+				images[i] = ImageBlock.PlayerImages.get(playerImageIndices[i] % ImageBlock.PlayerImages.size());
 		}
 		ls.setPlayerImages(images);
-		reader.readLine();
-		if(reader.readLine().equals("-1")) SoundEffect.MUTE = true;
-		else SoundEffect.MUTE = false;
-		if(reader.readLine().equals("-1")) MusicLoop.MUTE = true;
-		else MusicLoop.MUTE = false;
-		reader.close();
+		SoundEffect.MUTE = false;
+		MusicLoop.MUTE = false;
 	}
 	
 	public void saveConfig() throws IOException
@@ -444,7 +570,7 @@ public class OptionsState extends GameState{
 				if(returnVal == JFileChooser.APPROVE_OPTION)
 				{
 					tmp = fileChooser.getSelectedFile();
-					if(!tmp.isDirectory() && tmp.getName().contains(".map"))
+					if(!tmp.isDirectory() && tmp.getName().endsWith(".map"))
 					{
 						file = tmp;
 						this.setText(file.getName());

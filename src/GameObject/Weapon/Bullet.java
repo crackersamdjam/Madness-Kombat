@@ -1,7 +1,9 @@
 package GameObject.Weapon;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -17,44 +19,52 @@ public abstract class Bullet extends GameObject{
 	private int damage;
 	private double knockback;
 	private boolean hitTerrain;
+	private boolean removed;
 	public static ArrayList<Bullet> BulletList = new ArrayList<Bullet>();
+	private static HashMap<String, BufferedImage> imageCache = new HashMap<String, BufferedImage>();
 	private Team team;
 	
 	public static void updateBullets()
 	{
-		if(!BulletList.isEmpty())
-			for(int i = 0; i < BulletList.size(); i++)
+		for(int i = 0; i < BulletList.size(); )
+		{
+			Bullet b = BulletList.get(i);
+			b.update();
+			
+			if(b.removed)
+				continue;
+			
+			for(int j = 0; j < Player.PlayerList.size(); j++)
 			{
-				Bullet b = BulletList.get(i);
-				b.update();
-				
-				for(int j = 0; j < Player.PlayerList.size(); j++)
+				Player p = Player.PlayerList.get(j);
+				boolean condition = false;
+				if(LevelState.getGameMode() == GameMode.LAST_MAN_STANDING)
 				{
-					Player p = Player.PlayerList.get(j);
-					boolean condition = false;
-					if(LevelState.getGameMode() == GameMode.LAST_MAN_STANDING)
-					{
-						condition = b.collidesWith(p);
-					}
-					else if(LevelState.getGameMode() == GameMode.TEAM)
-					{
-						condition = b.collidesWith(p) && b.getTeam() != p.getTeam();
-					}
-					if(condition)
-					{
-						b.impact(p);
-						i--;
-						continue;
-					}
+					condition = b.collidesWith(p);
 				}
-				
-				if(b.hitsTerrain())
+				else if(LevelState.getGameMode() == GameMode.TEAM)
 				{
-					b.hitTerrain();
-					i--;
+					condition = b.collidesWith(p) && b.getTeam() != p.getTeam();
+				}
+				if(condition)
+				{
+					b.impact(p);
 					break;
 				}
 			}
+			
+			if(b.removed)
+				continue;
+			
+			if(b.hitsTerrain())
+			{
+				b.hitTerrain();
+				if(b.removed)
+					continue;
+			}
+			
+			i++;
+		}
 	}
 	
 	public static void drawBullets(java.awt.Graphics2D g)
@@ -68,16 +78,26 @@ public abstract class Bullet extends GameObject{
 		damage = dmg;
 		setTileMap(tileMap);
 		hitTerrain = false;
+		removed = false;
 		this.knockback = knockback;
-		BulletList.add(this);
 		this.team = team;
 		try {
-			setImage(ImageIO.read(getClass().getResource(imageName)));
+			BufferedImage img = imageCache.get(imageName);
+			if(img == null)
+			{
+				img = ImageIO.read(getClass().getResource(imageName));
+				if(img != null)
+					imageCache.put(imageName, img);
+			}
+			setImage(img);
 			setSizeByImage();
 			setHitBoxByImage();
 		} catch (IOException e) {
 			
 		}
+		if(getHitbox() == null)
+			setHitBoxBySize();
+		BulletList.add(this);
 	}
 	
 	public void hitTerrain()
@@ -96,9 +116,9 @@ public abstract class Bullet extends GameObject{
 	public int getDamage() { return damage; }
 	public boolean hitsTerrain() { return hitTerrain; }
 	public void removeThis() { 
-		int index = BulletList.indexOf(this);
-		if(index != -1)
-			BulletList.remove(index);
+		if(removed) return;
+		removed = true;
+		BulletList.remove(this);
 	}
 	
 	@Override
@@ -112,11 +132,29 @@ public abstract class Bullet extends GameObject{
 			removeThis();
 			return;
 		}
-		terrainCollision();
-		if(this.getXVel() == 0 || (!this.inAir() && this.getYVel() == 0))
-		{
+		if(overlapsSolidTile())
 			hitTerrain = true;
+	}
+	
+	private boolean overlapsSolidTile()
+	{
+		TileMap m = getTileMap();
+		if(m == null) return false;
+		int ts = TileMap.getTileSize();
+		if(ts <= 0) return false;
+		int left = (int)Math.floor(getX() / ts);
+		int right = (int)Math.floor((getX() + getWidth() - 1) / ts);
+		int top = (int)Math.floor(getY() / ts);
+		int bottom = (int)Math.floor((getY() + getHeight() - 1) / ts);
+		for(int row = top; row <= bottom; row++)
+		{
+			for(int col = left; col <= right; col++)
+			{
+				if(m.getType(row, col) / 10 == 1)
+					return true;
+			}
 		}
+		return false;
 	}
 	
 	public double getKnockback() { return knockback * getDirection(); }

@@ -30,7 +30,7 @@ public class MusicLoop {
 	
 	public void play()
 	{
-		if(MUTE) return;
+		if(MUTE || clip == null) return;
 		clip.setFramePosition(0);
 		clip.start();
 		clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -38,14 +38,14 @@ public class MusicLoop {
 	
 	public void pause()
 	{
-		if(MUTE) return;
+		if(clip == null) return;
 		lastPaused = clip.getFramePosition();
-		stop();
+		clip.stop();
 	}
 	
 	public void resume()
 	{
-		if(MUTE) return;
+		if(MUTE || clip == null) return;
 		clip.setFramePosition(lastPaused);
 		clip.start();
 		clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -53,7 +53,6 @@ public class MusicLoop {
 	
 	public void stop()
 	{
-		if(MUTE) return;
 		if(clip != null) clip.stop();
 	}
 	

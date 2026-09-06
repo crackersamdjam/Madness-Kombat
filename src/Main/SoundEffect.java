@@ -13,7 +13,6 @@ public class SoundEffect {
 	
 	public static boolean MUTE;
 	
-	private AudioInputStream sound;
 	private URL url;
 	private Clip clip;
 	
@@ -24,20 +23,33 @@ public class SoundEffect {
 	
 	public void play()
 	{
-		if(MUTE) return;
+		if(MUTE || url == null) return;
 		try {
-			sound = AudioSystem.getAudioInputStream(url);
-			clip = AudioSystem.getClip();
-			clip.open(sound);
+			if(clip == null || !clip.isOpen())
+			{
+				AudioInputStream stream = AudioSystem.getAudioInputStream(url);
+				clip = AudioSystem.getClip();
+				clip.open(stream);
+				try { stream.close(); } catch(IOException e) {}
+			}
+			if(clip.isRunning())
+				clip.stop();
 			clip.setFramePosition(0);
 			clip.start();
 		} catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
-			e.printStackTrace();
+			clip = null;
 		}
 	}
 	
 	public void stop()
 	{
-		if(clip != null) clip.stop();
+		if(clip != null)
+		{
+			try {
+				clip.stop();
+				clip.close();
+			} catch(Exception e) {}
+			clip = null;
+		}
 	}
 }

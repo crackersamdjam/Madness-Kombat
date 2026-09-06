@@ -23,10 +23,11 @@ public abstract class Item extends GameObject{
 		ArrayList<Player> players = Player.PlayerList;
 		ArrayList<Item> items = ItemList;
 		if(!items.isEmpty() && !players.isEmpty())
-			for(int a = 0; a < items.size(); a++)
+			for(int a = 0; a < items.size(); )
 			{
 				Item i = items.get(a);
 				i.update();
+				boolean taken = false;
 				for(int b = 0; b < players.size(); b++)
 				{
 					Player p = players.get(b);
@@ -34,9 +35,12 @@ public abstract class Item extends GameObject{
 					{
 						i.takeEffect(p);
 						items.remove(a);
+						taken = true;
 						break;
 					}
 				}
+				if(!taken)
+					a++;
 			}
 	}
 	

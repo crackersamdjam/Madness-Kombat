@@ -51,14 +51,17 @@ public class PlayerGraphics {
 	
 	public void updateParticles()
 	{
-		for(int i = 0; i < particles.size(); i++)
+		for(int i = 0; i < particles.size(); )
 		{
 			ParticleEffect cur = particles.get(i);
 			cur.update();
 			if(cur.isFinished())
 			{
 				particles.remove(i);
-				break;
+			}
+			else
+			{
+				i++;
 			}
 		}
 	}

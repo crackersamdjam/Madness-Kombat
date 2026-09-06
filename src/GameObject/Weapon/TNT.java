@@ -52,16 +52,17 @@ public class TNT extends Weapon {
 		}
 		if(!ignited && !this.isEquipped())
 		{
-			try
+			for(int i = 0; i < Bullet.BulletList.size(); i++)
 			{
-				for(Bullet b : Bullet.BulletList)
-					if(b.collidesWith(this))
-					{
-						b.removeThis();
-						new Explosion(this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2, 45, 300);
-						this.removeThis();
-					}
-			} catch(Exception e) {}
+				Bullet b = Bullet.BulletList.get(i);
+				if(b.collidesWith(this))
+				{
+					b.removeThis();
+					new Explosion(this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2, 45, 300);
+					this.removeThis();
+					return;
+				}
+			}
 		}
 	}
 	

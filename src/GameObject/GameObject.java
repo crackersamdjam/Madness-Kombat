@@ -49,10 +49,17 @@ public abstract class GameObject {
 	public void setY(double y) { this.y = y; }
 	public void setWidth(int w) { this.width = w; }
 	public void setHeight(int h) { this.height = h; }
-	public void setSizeByImage() { this.width = image.getWidth(); this.height = image.getHeight(); }
+	public void setSizeByImage() {
+		if(image == null) return;
+		this.width = image.getWidth();
+		this.height = image.getHeight();
+	}
 	public void setImage(BufferedImage i) { this.image = i; }
 	public void setHitbox(Rectangle r) { this.hitbox = r; }
-	public void setHitBoxByImage() { this.hitbox = new Rectangle((int)getX(), (int)getY(), image.getWidth(), image.getHeight()); }
+	public void setHitBoxByImage() {
+		if(image == null) return;
+		this.hitbox = new Rectangle((int)getX(), (int)getY(), image.getWidth(), image.getHeight());
+	}
 	public void setHitBoxBySize() { this.hitbox = new Rectangle((int)getX(), (int)getY(), getWidth(), getHeight()); }
 	public void setXVel(double vel) { xVel = vel; }
 	public void setYVel(double vel) { yVel = vel; }
@@ -63,6 +70,7 @@ public abstract class GameObject {
 	
 	public void spawnRandom(ArrayList<Point> spawnPoints)
 	{
+		if(spawnPoints == null || spawnPoints.isEmpty()) return;
 		int index = new Random().nextInt(spawnPoints.size());
 		spawn(spawnPoints.get(index));
 	}
@@ -86,6 +94,7 @@ public abstract class GameObject {
 	
 	public void drawImage(Graphics2D g)
 	{
+		if(getImage() == null) return;
 		int dir = getDirection();
 		if(dir == FACING_LEFT)
 		{
@@ -114,7 +123,8 @@ public abstract class GameObject {
 	
 	public boolean collidesWith(GameObject g)
 	{
-		if(g != null) return hitbox.intersects(g.getHitbox()); return false;
+		if(g == null || hitbox == null || g.getHitbox() == null) return false;
+		return hitbox.intersects(g.getHitbox());
 	}
 	
 	/*

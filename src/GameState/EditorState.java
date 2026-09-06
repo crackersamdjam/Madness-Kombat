@@ -113,8 +113,13 @@ public class EditorState extends GameState implements MouseListener, MouseMotion
 	
 	private void moveSelectGridByMouse(MouseEvent e)
 	{
-		selectRow = e.getY() / tileSize + 1;
+		if(tileSize <= 0) return;
+		selectRow = e.getY() / tileSize;
 		selectCol = e.getX() / tileSize;
+		if(selectRow < 0) selectRow = 0;
+		if(selectCol < 0) selectCol = 0;
+		if(numRows > 0 && selectRow >= numRows) selectRow = numRows - 1;
+		if(numCols > 0 && selectCol >= numCols) selectCol = numCols - 1;
 	}
 	
 	private void changeIdByMouseWheel(MouseWheelEvent e)

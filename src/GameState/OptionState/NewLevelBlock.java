@@ -42,7 +42,7 @@ public class NewLevelBlock extends OptionBlock {
 	private void createFile()
 	{
 		String levelName = JOptionPane.showInputDialog("Enter level name");
-		if(levelName != null && levelName != "")
+		if(levelName != null && !levelName.isEmpty())
 		{
 			String path = GamePanel.getRootFolderPath() + levelName + ".map";
 			try {
